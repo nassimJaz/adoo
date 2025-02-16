@@ -16,9 +16,9 @@ def logout():
     logout_user()
     return redirect(url_for('main.index'))
 
-@bp.route('/register', methods=['GET', 'POST'])
-def register():
+@bp.route('/inscription', methods=['GET', 'POST'])
+def inscription():
     if current_user.is_authenticated:
         return redirect(url_for('main.index'))
     
-    return render_template('auth/register.html')
+    return render_template('auth/inscription.html')
