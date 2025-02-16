@@ -4,9 +4,9 @@ from flask_login import login_required
 bp = Blueprint('main', __name__)
 
 @bp.route('/')
-@bp.route('/index')
+@bp.route('/accueil')
 def index():
-    return render_template('main/index.html')
+    return render_template('main/accueil.html')
 
 @bp.route('/profile')
 @login_required

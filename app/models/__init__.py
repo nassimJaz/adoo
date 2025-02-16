@@ -1,6 +1,4 @@
-from flask_sqlalchemy import SQLAlchemy
-
-db = SQLAlchemy()
+from app import db  # Import db from app package instead of creating a new instance
 
 # Import all models
 from app.models.utilisateur import Utilisateur
