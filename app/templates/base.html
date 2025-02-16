@@ -15,26 +15,42 @@
     <script src="https://unpkg.com/htmx.org@1.9.4"></script>
 </head>
 <body class="bg-gray-100">
-    <nav class="bg-white shadow-lg">
-        <div class="container mx-auto px-4">
-            <div class="flex justify-between items-center h-16">
-                <!-- Logo/Nom à gauche -->
-                <div class="flex-shrink-0">
-                    <a href="{{ url_for('main.accueil') }}" class="text-xl font-bold text-gray-800">Adoo</a>
+    {% if not current_user.is_authenticated or request.endpoint in ['auth.connexion', 'auth.inscription'] %}
+        <!-- Version simple sans barre de navigation si pas connecté -->
+        <nav class="bg-white shadow-lg">
+            <div class="container mx-auto px-4">
+                <div class="flex justify-center items-center h-16">
+                    <div class="flex-shrink-0">
+                        <span class="text-xl font-bold text-gray-800">Adoo</span>
+                    </div>
                 </div>
-                
-                <!-- Navigation au centre -->
-                <div class="flex space-x-8">
-                    <a href="{{ url_for('main.accueil') }}" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md">Accueil</a>
-                    <a href="{{ url_for('main.projets') }}" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md">Projets</a>
-                    <a href="{{ url_for('main.profile') }}" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md">Profil</a>
-                </div>
-                
-                <!-- Espace à droite pour équilibrer -->
-                <div class="flex-shrink-0 w-24"></div>
             </div>
-        </div>
-    </nav>
+        </nav>
+    {% else %}
+        <!-- Version complète avec navigation pour utilisateurs connectés -->
+        <nav class="bg-white shadow-lg">
+            <div class="container mx-auto px-4">
+                <div class="flex justify-between items-center h-16">
+                    <!-- Logo/Nom à gauche -->
+                    <div class="flex-shrink-0">
+                        <a href="{{ url_for('main.accueil') }}" class="text-xl font-bold text-gray-800">Adoo</a>
+                    </div>
+                    
+                    <!-- Navigation au centre -->
+                    <div class="flex space-x-8">
+                        <a href="{{ url_for('main.accueil') }}" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md">Accueil</a>
+                        <a href="{{ url_for('main.projets') }}" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md">Projets</a>
+                        <a href="{{ url_for('main.profile') }}" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md">Profil</a>
+                    </div>
+                    
+                    <!-- Déconnexion à droite -->
+                    <div class="flex-shrink-0">
+                        <a href="{{ url_for('auth.logout') }}" class="text-red-600 hover:text-red-800 px-3 py-2 rounded-md">Déconnexion</a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    {% endif %}
 
     <main class="container mx-auto px-4 py-8">
         {% with messages = get_flashed_messages(with_categories=true) %}
