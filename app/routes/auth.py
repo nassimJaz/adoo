@@ -7,12 +7,29 @@ from app import db
 
 bp = Blueprint('auth', __name__)
 
+@bp.route('/login', methods=['GET', 'POST'])
+def login():
+    # Redirection vers la page de connexion (pour flask login qui prend directement la route login)
+    return redirect(url_for('auth.connexion'))
+
 @bp.route('/connexion', methods=['GET', 'POST'])
 def connexion():
     if current_user.is_authenticated:
         return redirect(url_for('main.accueil'))
     
-    
+    if request.method == 'POST':
+        email = request.form.get('email')
+        mdp = request.form.get('password')
+
+        user = Utilisateur.query.filter_by(email=email).first()
+
+        if user and user.check_password(mdp) :
+            login_user(user)
+            flash('Connexion réussie !', 'success')
+            return redirect(url_for('main.accueil'))
+        else:
+            flash('Email ou mot de passe incorrect.', 'error')
+
     return render_template('auth/connexion.html')
 
 @bp.route('/logout')

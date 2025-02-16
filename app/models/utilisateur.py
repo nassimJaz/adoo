@@ -27,12 +27,10 @@ class Utilisateur(db.Model, UserMixin):
     actif = db.Column(db.Boolean, default=True)
 
     # Relations
-    projets = db.relationship('ProjetMembre', back_populates='utilisateur',
-                            cascade='all, delete-orphan')
-    commentaires = db.relationship('Commentaire', backref='auteur',
-                                 cascade='all, delete-orphan')
-    taches_assignees = db.relationship('Tache', backref='responsable',
-                                     cascade='all, delete-orphan')
+    projets = db.relationship('ProjetMembre', back_populates='utilisateur',cascade='all, delete-orphan')
+    commentaires = db.relationship('Commentaire', backref='auteur', cascade='all, delete-orphan')
+    taches_assignees = db.relationship('Tache', backref='responsable', cascade='all, delete-orphan')
+    notifications = db.relationship('Notification', backref='recipient', lazy='dynamic')
 
     def set_password(self, password):
         """Hash et enregistre le mot de passe de l'utilisateur."""

@@ -18,6 +18,7 @@ class Projet(db.Model):
     
     id = db.Column(db.String(36), primary_key=True)
     titre = db.Column(db.String(100), nullable=False)
+    objectifs = db.Column(db.Text)
     description = db.Column(db.Text)
     date_creation = db.Column(db.DateTime, default=datetime.utcnow)
     date_debut = db.Column(db.DateTime)
@@ -25,12 +26,9 @@ class Projet(db.Model):
     statut = db.Column(db.String(20), default='en_cours')
 
     # Relations
-    membres = db.relationship('ProjetMembre', back_populates='projet',
-                            cascade='all, delete-orphan')
-    taches = db.relationship('Tache', backref='projet',
-                           cascade='all, delete-orphan')
-    commentaires = db.relationship('Commentaire', backref='projet',
-                                 cascade='all, delete-orphan')
+    membres = db.relationship('ProjetMembre', back_populates='projet', cascade='all, delete-orphan')
+    taches = db.relationship('Tache', backref='projet', cascade='all, delete-orphan')
+    commentaires = db.relationship('Commentaire', backref='projet', cascade='all, delete-orphan')
 
     @staticmethod
     def validate_dates(date_debut, date_fin_prevue):

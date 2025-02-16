@@ -16,7 +16,24 @@
 </head>
 <body class="bg-gray-100">
     <nav class="bg-white shadow-lg">
-        <!-- Votre navigation ici -->
+        <div class="container mx-auto px-4">
+            <div class="flex justify-between items-center h-16">
+                <!-- Logo/Nom à gauche -->
+                <div class="flex-shrink-0">
+                    <a href="{{ url_for('main.accueil') }}" class="text-xl font-bold text-gray-800">Adoo</a>
+                </div>
+                
+                <!-- Navigation au centre -->
+                <div class="flex space-x-8">
+                    <a href="{{ url_for('main.accueil') }}" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md">Accueil</a>
+                    <a href="{{ url_for('main.projets') }}" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md">Projets</a>
+                    <a href="{{ url_for('main.profile') }}" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md">Profil</a>
+                </div>
+                
+                <!-- Espace à droite pour équilibrer -->
+                <div class="flex-shrink-0 w-24"></div>
+            </div>
+        </div>
     </nav>
 
     <main class="container mx-auto px-4 py-8">

@@ -2,7 +2,45 @@
 
 {% block content %}
 <div class="container mx-auto">
-    <h1 class="text-3xl font-bold mb-4">Bienvenue</h1>
-    <p>Page d'accueil de votre application</p>
+    <h1 class="text-3xl font-bold mb-4">Bienvenue sur Adoo</h1>
+
+    <fieldset class="border p-4 rounded mb-6">
+        <legend class="text-xl font-semibold px-2">Statistiques</legend>
+        <div class="grid grid-cols-3 gap-4">
+            <div class="p-4 bg-white rounded shadow">
+                <h2 class="text-lg text-gray-800">Mes projets : <span class="font-bold">{{projets_utilisateur | length}}</span></h2>
+            </div>
+            <div class="p-4 bg-white rounded shadow">
+                <h2 class="text-lg text-gray-800">Taches en cours : <span class="font-bold">{{taches_utilisateur | length}}</span></h2>
+            </div>
+            <div class="p-4 bg-white rounded shadow">
+                <h2 class="text-lg text-gray-800">Notifications : <span class="font-bold">{{notifications | length}}</span></h2>
+            </div>
+        </div>
+    </fieldset>
+    
+    <fieldset class="border p-4 rounded">
+        <legend class="text-xl font-semibold px-2">Mes Projets</legend>
+        <div class="overflow-x-auto">
+            <table class="min-w-full bg-white">
+                <thead class="bg-gray-800 text-white">
+                    <tr>
+                        <th class="px-6 py-3 text-left">Nom du projet</th>
+                        <th class="px-6 py-3 text-left">Objectifs</th>
+                        <th class="px-6 py-3 text-left">Date de début</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200">
+                    {% for projet in projets_utilisateur %}
+                    <tr class="hover:bg-gray-100">
+                        <td class="px-6 py-4">{{ projet.titre }}</td>
+                        <td class="px-6 py-4">{{ projet.objectifs or 'Non défini' }}</td>
+                        <td class="px-6 py-4">{{ projet.date_debut.strftime('%d/%m/%Y') if projet.date_debut else 'Non définie' }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </fieldset>
 </div>
 {% endblock %}
