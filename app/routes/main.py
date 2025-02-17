@@ -7,6 +7,7 @@ from app import db
 from app.models.projet import Projet
 from app.models.projet_membre import ProjetMembre
 from app.models.tache import Tache
+from app.models.utilisateur import Utilisateur
 
 bp = Blueprint('main', __name__)
 
@@ -73,7 +74,70 @@ def creer_projet():
 @bp.route('/projets')
 @login_required
 def projets():
-    return render_template('main/projets.html')
+    # affiche tout les projets de l'application
+    projets = Projet.query.all()
+    return render_template('main/projets.html', projets=projets)
+
+@bp.route('/projets/<string:id_projet>')
+@login_required
+def projet_detaille(id_projet):
+    projet = Projet.query.get(id_projet)
+    membres = ProjetMembre.query.filter_by(projet_id=projet.id).all()
+    membres_id = [membre.utilisateur_id for membre in membres]
+
+    list_role_utilisateur = [membre.role for membre in membres if membre.utilisateur_id == current_user.id]
+    if len(list_role_utilisateur) != 0:
+        role_utilisateur = list_role_utilisateur[0]
+    else:
+        role_utilisateur = None
+
+    if projet is None:
+        flash('Projet introuvable.', 'error')
+        return redirect(url_for('main.accueil'))
+    
+    return render_template('main/projet_detaille.html', projet=projet, membres_id=membres_id, membres=membres, role_utilisateur=role_utilisateur)
+
+
+@bp.route('/projets/<string:id_projet>/ajouter', methods=['GET', 'POST'])
+def ajouter_membre(id_projet):
+    projet = Projet.query.get(id_projet)
+    membres = ProjetMembre.query.filter_by(projet_id=projet.id).all()
+    list_role_utilisateur = [membre.role for membre in membres if membre.utilisateur_id == current_user.id]
+    
+    # L'utilisateur n'est pas membre du projet
+    if len(list_role_utilisateur) == 0:
+        flash('Vous n\'avez pas les droits pour ajouter un membre à ce projet.', 'error')
+        return redirect(url_for('main.projet_detaille', id_projet=id_projet))
+    
+    # L'utilisateur n'est pas administrateur
+    if list_role_utilisateur[0] != 'Administrateur':
+        flash('Vous n\'avez pas les droits pour ajouter un membre à ce projet.', 'error')
+        return redirect(url_for('main.projet_detaille', id_projet=id_projet))
+    
+    utilisateurs_totaux = Utilisateur.query.all()
+    utilisateurs_hors_projet = [u for u in utilisateurs_totaux if u.id not in [m.utilisateur_id for m in membres]]
+    
+    if request.method == 'POST':
+        
+
+        try :
+            utilisateur_id = request.form.get('user_id')
+            role = request.form.get('role')
+            id_projet_membre = f"projet_membre_{len(ProjetMembre.query.all()) +1}"
+
+            new_projet_membre = ProjetMembre(id_projet_membre=id_projet_membre, projet_id=id_projet, utilisateur_id=utilisateur_id, role=role)
+            db.session.add(new_projet_membre)
+
+            db.session.commit()
+            flash('Membre ajouté avec succès !', 'success')
+
+            return redirect(url_for('main.projet_detaille', id_projet=id_projet))
+        except Exception as e:
+            db.session.rollback()
+            print(f"Erreur lors de l'ajout du membre: {e}")
+            flash('Une erreur est survenue lors de l\'ajout du membre.', 'error')
+
+    return render_template('main/ajouter_membre.html', projet=projet, membres=membres, utilisateurs = utilisateurs_hors_projet)
 
 @bp.route('/profil')
 @login_required

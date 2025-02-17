@@ -2,7 +2,7 @@
 
 {% block content %}
 <div class="container mx-auto">
-    <h1 class="text-3xl font-bold mb-4">Bienvenue sur Adoo</h1>
+    <h1 class="text-3xl font-bold mb-4">Page d'accueil de Adoo</h1>
 
     <fieldset class="border p-4 rounded mb-6">
         <legend class="text-xl font-semibold px-2">Statistiques</legend>
@@ -37,17 +37,20 @@
                         <th class="px-6 py-3 text-left">Rôle</th> 
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-gray-200">       
-                    <tr class="hover:bg-gray-100">
-                        {% for projet in projets_utilisateur %}
+                <tbody class="divide-y divide-gray-200">   
+                    {% for projet in projets_utilisateur %}    
+                    <tr class="hover:bg-gray-100" onclick="window.location.href='{{ url_for('main.projet_detaille', id_projet=projet.id) }}'">
+                        
+                        <!-- <a href = "{{ url_for('main.projet_detaille', id_projet=projet.id) }}"></a> -->
                         <td class="px-6 py-4">{{ projet.titre }}</td>
                         <td class="px-6 py-4">{{ projet.objectifs or 'Non défini' }}</td>
                         <td class="px-6 py-4">{{ projet.date_debut.strftime('%d/%m/%Y') if projet.date_debut else 'Non définie' }}</td>
-                        {% endfor %}
-                        {% for role in roles_utilisateur %}
-                        <td class="px-6 py-4">{{ role }}</td>
-                        {% endfor %}
-                    </tr>
+                        <!--rendu possible du à la concordance de la classe ProjetMembre où le role est unique par projet 
+                        par rapport à l'utilisateur et indexé au meme endroit-->
+                        <td class="px-6 py-4">{{ roles_utilisateur[loop.index0] }}</td>
+                        
+                    </tr>   
+                    {% endfor %}
                     
                 </tbody>
             </table>

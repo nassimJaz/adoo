@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto p-4">
+    <h1 class="text-2xl font-bold mb-6">Ajouter un membre au projet "{{ projet.titre }}"</h1>
+
+    <form method="POST" class="space-y-4">
+        <!-- Liste des membres actuels pour référence -->
+        <div class="mb-4">
+            <h2 class="text-sm font-semibold text-gray-600 mb-2">Membres actuels :</h2>
+            <ul class="text-sm text-gray-600 list-disc list-inside">
+                {% for membre in membres %}
+                    <li>{{ membre.utilisateur.email }} ({{ membre.role }})</li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <div>
+            <h2 class="text-sm font-semibold text-gray-600 mb-2">Sélectionner un nouveau membre : *</h2>
+            <select id="user_id" name="user_id" required>
+                <option value="">Sélectionner un utilisateur</option>
+                {% for user in utilisateurs %}
+                    <option value="{{ user.id }}">{{ user.prenom }} {{ user.nom }} ( {{user.email}} ) </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <!-- Rôle -->
+        <div>
+            <label for="role" class="block text-sm font-medium text-gray-700">Rôle *</label>
+            <select name="role" id="role" required
+                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm">
+                <option value="Lecteur">Lecteur</option>
+                <option value="Contributeur">Contributeur</option>
+                <option value="Administrateur">Administrateur</option>
+            </select>
+        </div>
+
+        <!-- Boutons -->
+        <div class="flex justify-end space-x-3 pt-4">
+            <a href="{{ url_for('main.projet_detaille', id_projet=projet.id) }}"
+               class="bg-gray-500 hover:bg-gray-600 text-white text-sm py-2 px-4 rounded-lg">
+                Annuler
+            </a>
+            <button type="submit"
+                    class="bg-blue-600 hover:bg-blue-700 text-white text-sm py-2 px-4 rounded-lg">
+                Ajouter le membre
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}
