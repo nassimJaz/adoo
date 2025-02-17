@@ -34,16 +34,21 @@
                         <th class="px-6 py-3 text-left">Nom du projet</th>
                         <th class="px-6 py-3 text-left">Objectifs</th>
                         <th class="px-6 py-3 text-left">Date de début</th>
+                        <th class="px-6 py-3 text-left">Rôle</th> 
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-gray-200">
-                    {% for projet in projets_utilisateur %}
+                <tbody class="divide-y divide-gray-200">       
                     <tr class="hover:bg-gray-100">
+                        {% for projet in projets_utilisateur %}
                         <td class="px-6 py-4">{{ projet.titre }}</td>
                         <td class="px-6 py-4">{{ projet.objectifs or 'Non défini' }}</td>
                         <td class="px-6 py-4">{{ projet.date_debut.strftime('%d/%m/%Y') if projet.date_debut else 'Non définie' }}</td>
+                        {% endfor %}
+                        {% for role in roles_utilisateur %}
+                        <td class="px-6 py-4">{{ role }}</td>
+                        {% endfor %}
                     </tr>
-                    {% endfor %}
+                    
                 </tbody>
             </table>
         </div>

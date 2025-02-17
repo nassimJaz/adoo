@@ -19,7 +19,7 @@ class Projet(db.Model):
     id = db.Column(db.String(36), primary_key=True)
     titre = db.Column(db.String(100), nullable=False)
     objectifs = db.Column(db.Text, nullable=False)
-    description = db.Column(db.Text)
+    description = db.Column(db.Text, default = ' ')
     date_creation = db.Column(db.DateTime, default=datetime.utcnow)
     date_debut = db.Column(db.DateTime, nullable=False)
     date_fin_prevue = db.Column(db.DateTime, nullable=False)

@@ -69,6 +69,7 @@ def inscription():
         
         except Exception as e:
             db.session.rollback() #retour à l'état initial si modification de la bdd
+            print(f"Erreur lors de l'inscription: {e}")
             flash('Une erreur est survenue lors de l\'inscription.', 'error')
             return redirect(url_for('auth.inscription'))
 
