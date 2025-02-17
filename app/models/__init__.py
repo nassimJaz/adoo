@@ -1,4 +1,4 @@
-from app import db  # Import db from app package instead of creating a new instance
+from app import db
 
 # Import all models
 from app.models.utilisateur import Utilisateur

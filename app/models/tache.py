@@ -4,7 +4,7 @@ from . import db
 class Tache(db.Model):
     """Modèle représentant une tâche dans un projet.
     
-    Attributes:
+    Attributs:
         id (str): Identifiant unique de la tâche
         titre (str): Titre de la tâche
         description (str): Description détaillée de la tâche
@@ -20,13 +20,13 @@ class Tache(db.Model):
     titre = db.Column(db.String(100), nullable=False)
     description = db.Column(db.Text)
     date_creation = db.Column(db.DateTime, default=datetime.utcnow)
-    date_echeance = db.Column(db.DateTime)
-    priorite = db.Column(db.String(20), default='normale')
-    statut = db.Column(db.String(20), default='a_faire')
+    date_echeance = db.Column(db.DateTime, nullable=False)
+    priorite = db.Column(db.String(20), nullable=False)
+    statut = db.Column(db.String(20), default='A faire')
 
     # Clés étrangères
     projet_id = db.Column(db.String(36), db.ForeignKey('projet.id'), nullable=False)
-    responsable_id = db.Column(db.String(36), db.ForeignKey('utilisateur.id'))
+    responsable_id = db.Column(db.String(36), db.ForeignKey('utilisateur.id'), nullable=True)
 
     def __repr__(self):
         return f'<Tache {self.titre}>'

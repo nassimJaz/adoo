@@ -6,14 +6,13 @@ from . import db
 class Utilisateur(db.Model, UserMixin):
     """Modèle représentant un utilisateur dans le système.
     
-    Attributes:
+    Attributs:
         id (str): Identifiant unique de l'utilisateur
         email (str): Adresse email unique de l'utilisateur
         mot_de_passe (str): Mot de passe hashé de l'utilisateur
         nom (str): Nom de famille de l'utilisateur
         prenom (str): Prénom de l'utilisateur
         date_inscription (datetime): Date de création du compte
-        actif (bool): Statut d'activation du compte
     """
     
     __tablename__ = 'utilisateur'
@@ -24,7 +23,6 @@ class Utilisateur(db.Model, UserMixin):
     nom = db.Column(db.String(64), nullable=False)
     prenom = db.Column(db.String(64), nullable=False)
     date_inscription = db.Column(db.DateTime, default=datetime.utcnow)
-    actif = db.Column(db.Boolean, default=True)
 
     # Relations
     projets = db.relationship('ProjetMembre', back_populates='utilisateur',cascade='all, delete-orphan')

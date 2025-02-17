@@ -4,7 +4,7 @@ from . import db
 class Projet(db.Model):
     """Modèle représentant un projet dans le système.
     
-    Attributes:
+    Attributs:
         id (str): Identifiant unique du projet
         titre (str): Titre du projet
         description (str): Description détaillée du projet
@@ -18,12 +18,12 @@ class Projet(db.Model):
     
     id = db.Column(db.String(36), primary_key=True)
     titre = db.Column(db.String(100), nullable=False)
-    objectifs = db.Column(db.Text)
+    objectifs = db.Column(db.Text, nullable=False)
     description = db.Column(db.Text)
     date_creation = db.Column(db.DateTime, default=datetime.utcnow)
-    date_debut = db.Column(db.DateTime)
-    date_fin_prevue = db.Column(db.DateTime)
-    statut = db.Column(db.String(20), default='en_cours')
+    date_debut = db.Column(db.DateTime, nullable=False)
+    date_fin_prevue = db.Column(db.DateTime, nullable=False)
+    statut = db.Column(db.String(20), default='En cours')
 
     # Relations
     membres = db.relationship('ProjetMembre', back_populates='projet', cascade='all, delete-orphan')
@@ -36,11 +36,6 @@ class Projet(db.Model):
         if date_debut and date_fin_prevue:
             return date_debut < date_fin_prevue
         return True
-
-    def __init__(self, *args, **kwargs):
-        super(Projet, self).__init__(*args, **kwargs)
-        if not self.validate_dates(self.date_debut, self.date_fin_prevue):
-            raise ValueError("La date de début doit être antérieure à la date de fin prévue")
 
     def __repr__(self):
         return f'<Projet {self.titre}>'

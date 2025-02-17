@@ -4,7 +4,7 @@ from . import db
 class Commentaire(db.Model):
     """Modèle représentant un commentaire dans un projet.
     
-    Attributes:
+    Attributs:
         id (str): Identifiant unique du commentaire
         contenu (str): Contenu du commentaire
         date_creation (datetime): Date de création du commentaire
