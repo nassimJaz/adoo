@@ -17,6 +17,7 @@ class ProjetMembre(db.Model):
     id_projet_membre = db.Column(db.String(36), primary_key=True)
     projet_id = db.Column(db.String(36), db.ForeignKey('projet.id'))
     utilisateur_id = db.Column(db.String(36), db.ForeignKey('utilisateur.id'))
+    createur_id = db.Column(db.String(36))
     role = db.Column(db.String(20), default='Lecteur')
     date_ajout = db.Column(db.DateTime, default=datetime.utcnow)
 
