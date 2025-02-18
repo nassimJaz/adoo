@@ -295,7 +295,7 @@
                         <td class="px-6 py-4">{{ membre.role }}</td>
                         <td class="px-6 py-4">{{ membre.date_ajout.strftime('%d/%m/%Y') }}</td>
                         {% if role_utilisateur == 'Administrateur' %}
-                        {% if current_user.id != membre.createur_id %}
+                        {% if membre.utilisateur_id != membre.createur_id %}
                         <td class="px-6 py-4">
                             <form method="POST"
                                 action="{{ url_for('main.supprimer_membre', id_projet=projet.id, id_membre=membre.id_projet_membre) }}"

@@ -1,6 +1,6 @@
-instance/
-*.db
+# Cache Python
 __pycache__/
 *.pyc
-.env
+
+# Environnement virtuel
 venv/
