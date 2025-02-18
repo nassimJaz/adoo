@@ -2,10 +2,6 @@
 # Installation du projet
 
 1. Cloner le projet
-```bash
-git clone <votre-repo>
-cd <votre-projet>
-```
 
 2. Créer et activer un environnement virtuel
 ```bash
