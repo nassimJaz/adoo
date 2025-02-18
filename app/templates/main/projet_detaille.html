@@ -5,11 +5,6 @@
     <!-- En-tête du projet avec statut -->
     <div class="flex justify-between items-center mb-6">
         <h1 class="text-3xl font-bold">{{ projet.titre }}</h1>
-        {% if role_utilisateur == 'Administrateur'%}
-            <button class="bg-blue-600 hover:bg-blue-800 text-white text-sm font-bold py-1.5 px-3 rounded-lg">
-                <a href="{{ url_for('main.ajouter_membre', id_projet=projet.id) }}">+ Ajouter un membre</a></button>
-            <button class="bg-green-600 hover:bg-green-800 text-white text-sm font-bold py-1.5 px-3 rounded-lg">Modifier le projet</button>
-        {% endif %}
         <span class="px-4 py-2 text-sm font-semibold rounded-full 
             {% if projet.statut == 'En cours' %}
                 bg-green-100 text-green-800
@@ -23,6 +18,22 @@
             {{ projet.statut }}
         </span>
     </div>
+
+    {% if role_utilisateur not in ['Lecteur', None] %}
+    <fieldset class="border p-4 rounded mb-6">
+        <legend class="text-xl font-semibold px-2">Panel de commande :</legend>
+        {% if role_utilisateur in ['Administrateur', 'Contributeur'] %}
+        <button class="bg-blue-600 hover:bg-blue-800 text-white text-sm font-bold py-1.5 px-3 rounded-lg">
+            <a href="{{ url_for('main.ajouter_tache', id_projet=projet.id) }}">+ Ajouter une tache</a></button>
+        {% endif%}
+        {% if role_utilisateur == 'Administrateur' %}
+        <button class="bg-blue-600 hover:bg-blue-800 text-white text-sm font-bold py-1.5 px-3 rounded-lg">
+            <a href="{{ url_for('main.ajouter_membre', id_projet=projet.id) }}">+ Ajouter un membre</a></button>
+        <button class="bg-green-600 hover:bg-green-800 text-white text-sm font-bold py-1.5 px-3 rounded-lg">Modifier le
+            projet</button>
+        {% endif%}
+    </fieldset>
+    {% endif %}
 
     <!-- Objectifs -->
     <div class="mb-6">
@@ -48,38 +59,237 @@
 
     {% if current_user.id in membres_id %}
 
-        <!-- Description -->
-        <div class="mb-6">
-            <h2 class="text-xl font-semibold text-gray-700 mb-2">Description</h2>
-            <p class="text-gray-600 bg-gray-50 p-4 rounded-lg"> {{ projet.description }}</p>
-        </div>
-        
-        <!-- Membres du projet -->
-        <div class="mb-6">
-            <h2 class="text-xl font-semibold text-gray-700 mb-2">Membres du projet</h2>
-            <div class="overflow-x-auto">
-                <table class="min-w-full bg-white border rounded-lg">
-                    <thead class="bg-gray-800 text-white">
-                        <tr>
-                            <th class="px-6 py-3 text-left">Nom</th>
-                            <th class="px-6 py-3 text-left">Prénom</th>
-                            <th class="px-6 py-3 text-left">Rôle</th>
-                            <th class="px-6 py-3 text-left">Date d'ajout</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-gray-200">
-                        {% for membre in membres %}
-                        <tr class="hover:bg-gray-50">
-                            <td class="px-6 py-4">{{ membre.utilisateur.nom }}</td>
-                            <td class="px-6 py-4">{{ membre.utilisateur.prenom }}</td>
-                            <td class="px-6 py-4">{{ membre.role }}</td>
-                            <td class="px-6 py-4">{{ membre.date_ajout.strftime('%d/%m/%Y') }}</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+    <!-- Description -->
+    <div class="mb-6">
+        <h2 class="text-xl font-semibold text-gray-700 mb-2">Description</h2>
+        <p class="text-gray-600 bg-gray-50 p-4 rounded-lg"> {{ projet.description }}</p>
+    </div>
+
+    <!-- Taches du projet -->
+    <div class="mb-6">
+        <h2 class="text-xl font-semibold text-gray-700 mb-2">Tâches du projet</h2>
+        <div class="grid grid-cols-3 gap-4">
+            <!-- Colonne "A faire" -->
+            <div class="bg-gray-50 rounded-lg p-4">
+                <h3 class="font-semibold text-lg mb-4 text-gray-700 border-b pb-2">À faire</h3>
+                <div class="space-y-4">
+                    {% for tache in taches %}
+                    {% if tache.statut == 'A faire' %}
+                    <div class="bg-white p-4 rounded-lg shadow hover:shadow-md transition-shadow break-words">
+                        <h4 class="font-semibold text-gray-800 break-words">{{ tache.titre }}</h4>
+                        <p class="text-sm text-gray-600 mt-2 whitespace-pre-wrap break-words">{{ tache.description }}</p>
+                        <div class="mt-3 flex justify-between items-center">
+                            <span class="text-xs font-medium px-2 py-1 rounded-full
+                                {% if tache.priorite == 'Haute' %}
+                                    bg-red-100 text-red-800
+                                {% elif tache.priorite == 'Moyenne' %}
+                                    bg-yellow-100 text-yellow-800
+                                {% else %}
+                                    bg-green-100 text-green-800
+                                {% endif %}">
+                                {{ tache.priorite }}
+                            </span>
+                            <span class="text-xs text-gray-500">
+                                {{ tache.date_echeance.strftime('%d/%m/%Y') }}
+                            </span>
+                        </div>
+                        {% if tache.responsable_id %}
+                        <div class="mt-2 text-xs text-gray-500">
+                            Responsable: {{ tache.responsable.prenom }} {{ tache.responsable.nom }}
+                        </div>
+                        {% endif %}
+                        
+                        <!-- Ajout du formulaire de modification du statut et bouton de suppression -->
+                        {% if role_utilisateur in ['Administrateur', 'Contributeur'] %}
+                        <div class="mt-2 flex items-center gap-2">
+                            <form method="POST" action="{{ url_for('main.modifier_tache', id_projet=projet.id, id_tache=tache.id) }}" class="flex-grow">
+                                <select name="statut" onchange="this.form.submit()" class="text-sm border rounded px-2 py-1 w-full">
+                                    <option value="A faire" {% if tache.statut == 'A faire' %}selected{% endif %}>À faire</option>
+                                    <option value="En cours" {% if tache.statut == 'En cours' %}selected{% endif %}>En cours</option>
+                                    <option value="Terminé" {% if tache.statut == 'Terminé' %}selected{% endif %}>Terminé</option>
+                                </select>
+                            </form>
+                        </div>
+                        {% endif %}
+                        {% if role_utilisateur == 'Administrateur' %}
+                        <div class="mt-2 flex items-center gap-2">
+                            <form method="POST" 
+                                  action="{{ url_for('main.supprimer_tache', id_projet=projet.id, id_tache=tache.id) }}"
+                                  onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette tâche ?');"
+                                  class="inline">
+                                <button type="submit" class="text-red-600 hover:text-red-800 p-1">
+                                    Supprimer<i class="fas fa-trash"></i>
+                                </button>
+                            </form>
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Colonne "En cours" -->
+            <div class="bg-gray-50 rounded-lg p-4">
+                <h3 class="font-semibold text-lg mb-4 text-gray-700 border-b pb-2">En cours</h3>
+                <div class="space-y-4">
+                    {% for tache in taches %}
+                    {% if tache.statut == 'En cours' %}
+                    <div class="bg-white p-4 rounded-lg shadow hover:shadow-md transition-shadow break-words">
+                        <h4 class="font-semibold text-gray-800 break-words">{{ tache.titre }}</h4>
+                        <p class="text-sm text-gray-600 mt-2 whitespace-pre-wrap break-words">{{ tache.description }}</p>
+                        <div class="mt-3 flex justify-between items-center">
+                            <span class="text-xs font-medium px-2 py-1 rounded-full
+                                {% if tache.priorite == 'Haute' %}
+                                    bg-red-100 text-red-800
+                                {% elif tache.priorite == 'Moyenne' %}
+                                    bg-yellow-100 text-yellow-800
+                                {% else %}
+                                    bg-green-100 text-green-800
+                                {% endif %}">
+                                {{ tache.priorite }}
+                            </span>
+                            <span class="text-xs text-gray-500">
+                                {{ tache.date_echeance.strftime('%d/%m/%Y') }}
+                            </span>
+                        </div>
+                        {% if tache.responsable_id %}
+                        <div class="mt-2 text-xs text-gray-500">
+                            Responsable: {{ tache.responsable.prenom }} {{ tache.responsable.nom }}
+                        </div>
+                        {% endif %}
+                        
+                        <!-- Ajout du formulaire de modification du statut et bouton de suppression -->
+                        {% if role_utilisateur in ['Administrateur', 'Contributeur'] %}
+                        <div class="mt-2 flex items-center gap-2">
+                            <form method="POST" action="{{ url_for('main.modifier_tache', id_projet=projet.id, id_tache=tache.id) }}" class="flex-grow">
+                                <select name="statut" onchange="this.form.submit()" class="text-sm border rounded px-2 py-1 w-full">
+                                    <option value="A faire" {% if tache.statut == 'A faire' %}selected{% endif %}>À faire</option>
+                                    <option value="En cours" {% if tache.statut == 'En cours' %}selected{% endif %}>En cours</option>
+                                    <option value="Terminé" {% if tache.statut == 'Terminé' %}selected{% endif %}>Terminé</option>
+                                </select>
+                            </form>
+                        </div>
+                        {% endif %}
+                        {% if role_utilisateur == 'Administrateur' %}
+                        <div class="mt-2 flex items-center gap-2">
+                            <form method="POST" 
+                                  action="{{ url_for('main.supprimer_tache', id_projet=projet.id, id_tache=tache.id) }}"
+                                  onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette tâche ?');"
+                                  class="inline">
+                                <button type="submit" class="text-red-600 hover:text-red-800 p-1">
+                                    Supprimer<i class="fas fa-trash"></i>
+                                </button>
+                            </form>
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Colonne "Terminé" -->
+            <div class="bg-gray-50 rounded-lg p-4">
+                <h3 class="font-semibold text-lg mb-4 text-gray-700 border-b pb-2">Terminé</h3>
+                <div class="space-y-4">
+                    {% for tache in taches %}
+                    {% if tache.statut == 'Terminé' %}
+                    <div class="bg-white p-4 rounded-lg shadow hover:shadow-md transition-shadow break-words">
+                        <h4 class="font-semibold text-gray-800 break-words">{{ tache.titre }}</h4>
+                        <p class="text-sm text-gray-600 mt-2 whitespace-pre-wrap break-words">{{ tache.description }}</p>
+                        <div class="mt-3 flex justify-between items-center">
+                            <span class="text-xs font-medium px-2 py-1 rounded-full
+                                {% if tache.priorite == 'Haute' %}
+                                    bg-red-100 text-red-800
+                                {% elif tache.priorite == 'Moyenne' %}
+                                    bg-yellow-100 text-yellow-800
+                                {% else %}
+                                    bg-green-100 text-green-800
+                                {% endif %}">
+                                {{ tache.priorite }}
+                            </span>
+                            <span class="text-xs text-gray-500">
+                                {{ tache.date_echeance.strftime('%d/%m/%Y') }}
+                            </span>
+                        </div>
+                        {% if tache.responsable_id %}
+                        <div class="mt-2 text-xs text-gray-500">
+                            Responsable: {{ tache.responsable.prenom }} {{ tache.responsable.nom }}
+                        </div>
+                        {% endif %}
+                        
+                        <!-- Ajout du formulaire de modification du statut et bouton de suppression -->
+                        {% if role_utilisateur in ['Administrateur', 'Contributeur'] %}
+                        <div class="mt-2 flex items-center gap-2">
+                            <form method="POST" action="{{ url_for('main.modifier_tache', id_projet=projet.id, id_tache=tache.id) }}" class="flex-grow">
+                                <select name="statut" onchange="this.form.submit()" class="text-sm border rounded px-2 py-1 w-full">
+                                    <option value="A faire" {% if tache.statut == 'A faire' %}selected{% endif %}>À faire</option>
+                                    <option value="En cours" {% if tache.statut == 'En cours' %}selected{% endif %}>En cours</option>
+                                    <option value="Terminé" {% if tache.statut == 'Terminé' %}selected{% endif %}>Terminé</option>
+                                </select>
+                            </form>
+                        </div>
+                        {% endif %}
+                        {% if role_utilisateur == 'Administrateur' %}
+                        <div class="mt-2 flex items-center gap-2">
+                            <form method="POST" 
+                                  action="{{ url_for('main.supprimer_tache', id_projet=projet.id, id_tache=tache.id) }}"
+                                  onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette tâche ?');"
+                                  class="inline">
+                                <button type="submit" class="text-red-600 hover:text-red-800 p-1">
+                                    Supprimer<i class="fas fa-trash"></i>
+                                </button>
+                            </form>
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                    {% endfor %}
+                </div>
             </div>
         </div>
-        {% endif %}
+    </div>
+    <!-- Membres du projet -->
+    <div class="mb-6">
+        <h2 class="text-xl font-semibold text-gray-700 mb-2">Membres du projet</h2>
+        <div class="overflow-x-auto">
+            <table class="min-w-full bg-white border rounded-lg">
+                <thead class="bg-gray-800 text-white">
+                    <tr>
+                        <th class="px-6 py-3 text-left">Nom</th>
+                        <th class="px-6 py-3 text-left">Prénom</th>
+                        <th class="px-6 py-3 text-left">Rôle</th>
+                        <th class="px-6 py-3 text-left">Date d'ajout</th>
+                        {% if role_utilisateur == 'Administrateur' %}
+                        <th class="px-6 py-3 text-left">Actions</th>
+                        {% endif %}
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200">
+                    {% for membre in membres %}
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-6 py-4">{{ membre.utilisateur.nom }}</td>
+                        <td class="px-6 py-4">{{ membre.utilisateur.prenom }}</td>
+                        <td class="px-6 py-4">{{ membre.role }}</td>
+                        <td class="px-6 py-4">{{ membre.date_ajout.strftime('%d/%m/%Y') }}</td>
+                        {% if role_utilisateur == 'Administrateur' %}
+                        <td class="px-6 py-4">
+                            <form method="POST"
+                                action="{{ url_for('main.supprimer_membre', id_projet=projet.id, id_membre=membre.id_projet_membre) }}"
+                                onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce membre ?');">
+                                <button type="submit" class="text-red-600 hover:text-red-800">
+                                    <i class="fas fa-trash"></i> Supprimer
+                                </button>
+                            </form>
+                        </td>
+                        {% endif %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
 </div>
 {% endblock %}

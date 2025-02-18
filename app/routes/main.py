@@ -21,14 +21,6 @@ def accueil():
     taches_utilisateur = Tache.query.filter_by(responsable_id=current_user.id).all() # Taches de l'utilisateur courant
     notif_utilisateur = [notifUser for notifUser in current_user.notifications] 
 
-    # Debug prints
-    print("=== DEBUG INFO ===")
-    print(f"Tâches de l'utilisateur: {[t.titre for t in taches_utilisateur]}")
-    print(f"Projets de l'utilisateur: {[p.titre for p in projets_utilisateur]}")
-    print(f"Roles de l'utilisateur: {[r for r in roles_utilisateur]}")
-    print(f"Notifications: {[n.contenu for n in notif_utilisateur]}")
-    print("================")
-
     return render_template('main/accueil.html', projets_utilisateur=projets_utilisateur, roles_utilisateur=roles_utilisateur, taches_utilisateur=taches_utilisateur, notifications=notif_utilisateur)
 
 @bp.route('/projets/creer', methods=['GET', 'POST'])
@@ -84,6 +76,7 @@ def projet_detaille(id_projet):
     projet = Projet.query.get(id_projet)
     membres = ProjetMembre.query.filter_by(projet_id=projet.id).all()
     membres_id = [membre.utilisateur_id for membre in membres]
+    taches = Tache.query.filter_by(projet_id = id_projet).all()
 
     list_role_utilisateur = [membre.role for membre in membres if membre.utilisateur_id == current_user.id]
     if len(list_role_utilisateur) != 0:
@@ -95,22 +88,23 @@ def projet_detaille(id_projet):
         flash('Projet introuvable.', 'error')
         return redirect(url_for('main.accueil'))
     
-    return render_template('main/projet_detaille.html', projet=projet, membres_id=membres_id, membres=membres, role_utilisateur=role_utilisateur)
+    return render_template('main/projet_detaille.html', projet=projet, membres_id=membres_id, membres=membres, role_utilisateur=role_utilisateur, taches = taches)
 
 
-@bp.route('/projets/<string:id_projet>/ajouter', methods=['GET', 'POST'])
+@bp.route('/projets/<string:id_projet>/ajouter/membre', methods=['GET', 'POST'])
 def ajouter_membre(id_projet):
     projet = Projet.query.get(id_projet)
     membres = ProjetMembre.query.filter_by(projet_id=projet.id).all()
-    list_role_utilisateur = [membre.role for membre in membres if membre.utilisateur_id == current_user.id]
-    
+
+    # Vérifier si l'utilisateur actuel est admin du projet
+    admin = ProjetMembre.query.filter_by(
+        projet_id=id_projet, 
+        utilisateur_id=current_user.id, 
+        role='Administrateur'
+    ).first()
+
     # L'utilisateur n'est pas membre du projet
-    if len(list_role_utilisateur) == 0:
-        flash('Vous n\'avez pas les droits pour ajouter un membre à ce projet.', 'error')
-        return redirect(url_for('main.projet_detaille', id_projet=id_projet))
-    
-    # L'utilisateur n'est pas administrateur
-    if list_role_utilisateur[0] != 'Administrateur':
+    if not admin:
         flash('Vous n\'avez pas les droits pour ajouter un membre à ce projet.', 'error')
         return redirect(url_for('main.projet_detaille', id_projet=id_projet))
     
@@ -119,7 +113,6 @@ def ajouter_membre(id_projet):
     
     if request.method == 'POST':
         
-
         try :
             utilisateur_id = request.form.get('user_id')
             role = request.form.get('role')
@@ -139,7 +132,202 @@ def ajouter_membre(id_projet):
 
     return render_template('main/ajouter_membre.html', projet=projet, membres=membres, utilisateurs = utilisateurs_hors_projet)
 
-@bp.route('/profil')
+@bp.route('/projets/<string:id_projet>/supprimer/membres/<string:id_membre>', methods=['POST'])
+@login_required
+def supprimer_membre(id_projet, id_membre):
+    projet = Projet.query.get(id_projet)
+    if not projet:
+        flash('Projet introuvable.', 'error')
+        return redirect(url_for('main.accueil'))
+    
+    # Vérifier si l'utilisateur actuel est admin du projet
+    membre_admin = ProjetMembre.query.filter_by(
+        projet_id=id_projet, 
+        utilisateur_id=current_user.id, 
+        role='Administrateur'
+    ).first()
+    
+    if not membre_admin:
+        flash('Vous n\'avez pas les droits pour supprimer un membre.', 'error')
+        return redirect(url_for('main.projet_detaille', id_projet=id_projet))
+    
+    # Supprimer le membre
+    membre_a_supprimer = ProjetMembre.query.get(id_membre)
+    if membre_a_supprimer:
+        db.session.delete(membre_a_supprimer)
+        db.session.commit()
+        flash('Membre supprimé avec succès.', 'success')
+    else:
+        db.session.rollback()
+        flash('Membre introuvable.', 'error')
+    
+    return redirect(url_for('main.projet_detaille', id_projet=id_projet))
+
+@bp.route('/profil', methods=['GET', 'POST'])
 @login_required
 def profil():
+
+    if request.method == 'POST' :
+        #Récupération des données
+        a_propos = request.form.get('a_propos')
+
+        preferences_notif = request.form.get('preferences_notif')
+
+        ancien_mdp = request.form.get('ancien_mdp')
+        nouveau_mdp = request.form.get('nouveau_mdp')
+
+        try:
+            if(len(ancien_mdp) != 0) :
+                if(len(nouveau_mdp) != 0) :
+                    # vérification d'avoir des entrées non nulles
+                    if(current_user.check_password(ancien_mdp)) :
+                        #vérification de l'ancien mdp
+                        current_user.set_password(nouveau_mdp)
+                        flash('Mot de passe mis à jour avec succès.', 'success')
+                    else :
+                        flash('Ancien mot de passe incorrect.', 'error')
+                        return render_template('main/profil.html')
+                flash('Nouveau mot de passe vide.', 'error')
+                return render_template('main/profil.html')
+
+            current_user.a_propos = a_propos
+            current_user.preferences_notif = preferences_notif
+            db.session.commit()
+            flash('Profil mis à jour.', 'success')
+        except Exception as e :
+            db.session.rollback()
+            flash('Erreur lors de la modification du profil', 'error')
+        
+
+
     return render_template('main/profil.html')
+
+@bp.route('/projets/<string:id_projet>/ajouter/tache', methods=['GET', 'POST'])
+@login_required
+def ajouter_tache(id_projet) :
+    membres = ProjetMembre.query.filter_by(projet_id=id_projet).all()
+
+    if request.method == 'POST' :
+
+        id_tache = f"{id_projet}t{ len(Tache.query.all()) + 1}"
+        titre = request.form.get('titre')
+        description = request.form.get('description')
+        date_echeance = datetime.strptime(request.form.get('date_echeance'), '%Y-%m-%d')
+        priorite = request.form.get('priorite')
+
+        responsable_tache = request.form.get('respo_id') # peut etre None
+        new_tache = Tache(
+                id = id_tache,
+                titre = titre,
+                description = description,
+                date_echeance = date_echeance,
+                priorite = priorite,
+                projet_id = id_projet,
+                responsable_id = responsable_tache
+            )
+        try:          
+            db.session.add(new_tache)
+            db.session.commit()
+            flash('Tache créee avec succès.', 'sucess')
+            return redirect(url_for('main.projet_detaille', id_projet = id_projet))
+        except Exception as e :
+            db.session.rollback()
+            flash('Erreur lors de la création de la tache.', 'error')
+            return redirect(url_for('main.ajouter_tache', id_projet = id_projet))
+        
+    return render_template('main/ajouter_tache.html', membres = membres)
+
+@bp.route('/projets/<string:id_projet>/modifier/tache/<string:id_tache>', methods=['POST'])
+@login_required
+def modifier_tache(id_projet, id_tache):
+    #uniquement pour modifier le statut d'une tache
+    tache = Tache.query.get(id_tache)
+    if not tache:
+        flash('Tâche introuvable.', 'error')
+        return redirect(url_for('main.projet_detaille', id_projet=id_projet))
+    
+    nouveau_statut = request.form.get('statut')
+    if nouveau_statut not in ['A faire', 'En cours', 'Terminé']:
+        flash('Statut invalide.', 'error')
+        return redirect(url_for('main.projet_detaille', id_projet=id_projet))
+    
+    try:
+        tache.statut = nouveau_statut
+        db.session.commit()
+        flash('Statut de la tâche mis à jour.', 'success')
+    except Exception as e:
+        db.session.rollback()
+        flash('Erreur lors de la modification de la tâche.', 'error')
+    
+    return redirect(url_for('main.projet_detaille', id_projet=id_projet))
+
+@bp.route('/projets/<string:id_projet>/supprimer/tache/<string:id_tache>', methods=['POST'])
+@login_required
+def supprimer_tache(id_projet, id_tache):
+    tache = Tache.query.get(id_tache)
+    if not tache:
+        flash('Tâche introuvable.', 'error')
+        return redirect(url_for('main.projet_detaille', id_projet=id_projet))
+    
+    # Vérifier si l'utilisateur actuel est admin du projet
+    membre = ProjetMembre.query.filter_by(
+        projet_id=id_projet, 
+        utilisateur_id=current_user.id, 
+        role='Administrateur'
+    ).first()
+    
+    if not membre :
+        flash('Vous n\'avez pas les droits pour supprimer une tâche.', 'error')
+        return redirect(url_for('main.projet_detaille', id_projet=id_projet))
+    
+    try:
+        db.session.delete(tache)
+        db.session.commit()
+        flash('Tâche supprimée avec succès.', 'success')
+    except Exception as e:
+        db.session.rollback()
+        flash('Erreur lors de la suppression de la tâche.', 'error')
+    
+    return redirect(url_for('main.projet_detaille', id_projet=id_projet))
+
+@bp.route('/projets/<string:id_projet>/modifier/tache/<string:id_tache>/responsable/<string:utilisateur_id>', methods=['POST'])
+@login_required
+def modifier_responsable_tache(id_projet, id_tache, utilisateur_id):
+    # Vérifier si la tâche existe
+    tache = Tache.query.get(id_tache)
+    if not tache:
+        flash('Tâche introuvable.', 'error')
+        return redirect(url_for('main.projet_detaille', id_projet=id_projet))
+    
+    # Vérifier si l'utilisateur actuel est membre du projet
+    membre = ProjetMembre.query.filter_by(
+        projet_id=id_projet, 
+        utilisateur_id= utilisateur_id
+    ).first()
+
+    role_utilisateur = ProjetMembre.query.filter_by(
+        utilisateur_id = current_user.id,
+        projet_id = id_projet
+    )
+    
+    # Le contributeur peut déleguer la tache
+    if not membre or role_utilisateur.role not in ['Administrateur', 'Contributeur']:
+        flash('Impossible de modifier cette tâche.', 'error')
+        return redirect(url_for('main.projet_detaille', id_projet=id_projet))
+    
+    # Récupérer le nouveau responsable depuis le formulaire
+    nouveau_responsable_id = request.form.get('responsable_id')
+    
+    try:
+        if nouveau_responsable_id :
+            tache.responsable_id = nouveau_responsable_id
+            db.session.commit()
+            flash('Responsable de la tâche mis à jour.', 'success')
+        else :
+            flash('Erreur lors de la modification du responsable.', 'error')
+
+    except Exception as e:
+        db.session.rollback()
+        flash('Erreur lors de la modification du responsable.', 'error')
+    
+    return redirect(url_for('main.projet_detaille', id_projet=id_projet))

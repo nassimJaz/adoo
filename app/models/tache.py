@@ -23,7 +23,6 @@ class Tache(db.Model):
     date_echeance = db.Column(db.DateTime, nullable=False)
     priorite = db.Column(db.String(20), nullable=False)
     statut = db.Column(db.String(20), default='A faire')
-
     # Clés étrangères
     projet_id = db.Column(db.String(36), db.ForeignKey('projet.id'), nullable=False)
     responsable_id = db.Column(db.String(36), db.ForeignKey('utilisateur.id'), nullable=True)

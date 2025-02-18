@@ -22,6 +22,8 @@ class Utilisateur(db.Model, UserMixin):
     mot_de_passe = db.Column(db.String(128), nullable=False)
     nom = db.Column(db.String(64), nullable=False)
     prenom = db.Column(db.String(64), nullable=False)
+    a_propos = db.Column(db.Text, default = '')
+    preferences_notif = db.Column(db.String(20), default = 'Application')
     date_inscription = db.Column(db.DateTime, default=datetime.utcnow)
 
     # Relations
