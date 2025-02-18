@@ -7,11 +7,6 @@
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- Alpine.js -->
-    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
-    
-    <!-- HTMX -->
-    <script src="https://unpkg.com/htmx.org@1.9.4"></script>
 </head>
 <body class="bg-gray-100">
     {% if not current_user.is_authenticated or request.endpoint in ['auth.connexion', 'auth.inscription'] %}
@@ -65,8 +60,5 @@
         {% block content %}{% endblock %}
     </main>
 
-    <footer class="bg-gray-800 text-white py-4">
-        
-    </footer>
 </body>
 </html>

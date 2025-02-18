@@ -2,7 +2,7 @@
 
 {% block content %}
 <div class="container mx-auto max-w-4xl p-4">
-    <!-- En-tête du projet avec statut -->
+    <!-- Statut -->
     <div class="flex justify-between items-center mb-6">
         <h1 class="text-3xl font-bold">{{ projet.titre }}</h1>
         <span class="px-4 py-2 text-sm font-semibold rounded-full 
@@ -77,7 +77,8 @@
                     {% if tache.statut == 'A faire' %}
                     <div class="bg-white p-4 rounded-lg shadow hover:shadow-md transition-shadow break-words">
                         <h4 class="font-semibold text-gray-800 break-words">{{ tache.titre }}</h4>
-                        <p class="text-sm text-gray-600 mt-2 whitespace-pre-wrap break-words">{{ tache.description }}</p>
+                        <p class="text-sm text-gray-600 mt-2 whitespace-pre-wrap break-words">{{ tache.description }}
+                        </p>
                         <div class="mt-3 flex justify-between items-center">
                             <span class="text-xs font-medium px-2 py-1 rounded-full
                                 {% if tache.priorite == 'Haute' %}
@@ -98,25 +99,31 @@
                             Responsable: {{ tache.responsable.prenom }} {{ tache.responsable.nom }}
                         </div>
                         {% endif %}
-                        
-                        <!-- Ajout du formulaire de modification du statut et bouton de suppression -->
+
+                        <!-- Modification du statut et suppression -->
                         {% if role_utilisateur in ['Administrateur', 'Contributeur'] %}
                         <div class="mt-2 flex items-center gap-2">
-                            <form method="POST" action="{{ url_for('main.modifier_tache', id_projet=projet.id, id_tache=tache.id) }}" class="flex-grow">
-                                <select name="statut" onchange="this.form.submit()" class="text-sm border rounded px-2 py-1 w-full">
-                                    <option value="A faire" {% if tache.statut == 'A faire' %}selected{% endif %}>À faire</option>
-                                    <option value="En cours" {% if tache.statut == 'En cours' %}selected{% endif %}>En cours</option>
-                                    <option value="Terminé" {% if tache.statut == 'Terminé' %}selected{% endif %}>Terminé</option>
+                            <form method="POST"
+                                action="{{ url_for('main.modifier_tache', id_projet=projet.id, id_tache=tache.id) }}"
+                                class="flex-grow">
+                                <select name="statut" onchange="this.form.submit()"
+                                    class="text-sm border rounded px-2 py-1 w-full">
+                                    <option value="A faire" {% if tache.statut=='A faire' %}selected{% endif %}>À faire
+                                    </option>
+                                    <option value="En cours" {% if tache.statut=='En cours' %}selected{% endif %}>En
+                                        cours</option>
+                                    <option value="Terminé" {% if tache.statut=='Terminé' %}selected{% endif %}>Terminé
+                                    </option>
                                 </select>
                             </form>
                         </div>
                         {% endif %}
                         {% if role_utilisateur == 'Administrateur' %}
                         <div class="mt-2 flex items-center gap-2">
-                            <form method="POST" 
-                                  action="{{ url_for('main.supprimer_tache', id_projet=projet.id, id_tache=tache.id) }}"
-                                  onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette tâche ?');"
-                                  class="inline">
+                            <form method="POST"
+                                action="{{ url_for('main.supprimer_tache', id_projet=projet.id, id_tache=tache.id) }}"
+                                onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette tâche ?');"
+                                class="inline">
                                 <button type="submit" class="text-red-600 hover:text-red-800 p-1">
                                     Supprimer<i class="fas fa-trash"></i>
                                 </button>
@@ -137,7 +144,8 @@
                     {% if tache.statut == 'En cours' %}
                     <div class="bg-white p-4 rounded-lg shadow hover:shadow-md transition-shadow break-words">
                         <h4 class="font-semibold text-gray-800 break-words">{{ tache.titre }}</h4>
-                        <p class="text-sm text-gray-600 mt-2 whitespace-pre-wrap break-words">{{ tache.description }}</p>
+                        <p class="text-sm text-gray-600 mt-2 whitespace-pre-wrap break-words">{{ tache.description }}
+                        </p>
                         <div class="mt-3 flex justify-between items-center">
                             <span class="text-xs font-medium px-2 py-1 rounded-full
                                 {% if tache.priorite == 'Haute' %}
@@ -158,25 +166,31 @@
                             Responsable: {{ tache.responsable.prenom }} {{ tache.responsable.nom }}
                         </div>
                         {% endif %}
-                        
-                        <!-- Ajout du formulaire de modification du statut et bouton de suppression -->
+
+                        <!-- Modification du statut et suppression -->
                         {% if role_utilisateur in ['Administrateur', 'Contributeur'] %}
                         <div class="mt-2 flex items-center gap-2">
-                            <form method="POST" action="{{ url_for('main.modifier_tache', id_projet=projet.id, id_tache=tache.id) }}" class="flex-grow">
-                                <select name="statut" onchange="this.form.submit()" class="text-sm border rounded px-2 py-1 w-full">
-                                    <option value="A faire" {% if tache.statut == 'A faire' %}selected{% endif %}>À faire</option>
-                                    <option value="En cours" {% if tache.statut == 'En cours' %}selected{% endif %}>En cours</option>
-                                    <option value="Terminé" {% if tache.statut == 'Terminé' %}selected{% endif %}>Terminé</option>
+                            <form method="POST"
+                                action="{{ url_for('main.modifier_tache', id_projet=projet.id, id_tache=tache.id) }}"
+                                class="flex-grow">
+                                <select name="statut" onchange="this.form.submit()"
+                                    class="text-sm border rounded px-2 py-1 w-full">
+                                    <option value="A faire" {% if tache.statut=='A faire' %}selected{% endif %}>À faire
+                                    </option>
+                                    <option value="En cours" {% if tache.statut=='En cours' %}selected{% endif %}>En
+                                        cours</option>
+                                    <option value="Terminé" {% if tache.statut=='Terminé' %}selected{% endif %}>Terminé
+                                    </option>
                                 </select>
                             </form>
                         </div>
                         {% endif %}
                         {% if role_utilisateur == 'Administrateur' %}
                         <div class="mt-2 flex items-center gap-2">
-                            <form method="POST" 
-                                  action="{{ url_for('main.supprimer_tache', id_projet=projet.id, id_tache=tache.id) }}"
-                                  onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette tâche ?');"
-                                  class="inline">
+                            <form method="POST"
+                                action="{{ url_for('main.supprimer_tache', id_projet=projet.id, id_tache=tache.id) }}"
+                                onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette tâche ?');"
+                                class="inline">
                                 <button type="submit" class="text-red-600 hover:text-red-800 p-1">
                                     Supprimer<i class="fas fa-trash"></i>
                                 </button>
@@ -197,7 +211,8 @@
                     {% if tache.statut == 'Terminé' %}
                     <div class="bg-white p-4 rounded-lg shadow hover:shadow-md transition-shadow break-words">
                         <h4 class="font-semibold text-gray-800 break-words">{{ tache.titre }}</h4>
-                        <p class="text-sm text-gray-600 mt-2 whitespace-pre-wrap break-words">{{ tache.description }}</p>
+                        <p class="text-sm text-gray-600 mt-2 whitespace-pre-wrap break-words">{{ tache.description }}
+                        </p>
                         <div class="mt-3 flex justify-between items-center">
                             <span class="text-xs font-medium px-2 py-1 rounded-full
                                 {% if tache.priorite == 'Haute' %}
@@ -218,25 +233,31 @@
                             Responsable: {{ tache.responsable.prenom }} {{ tache.responsable.nom }}
                         </div>
                         {% endif %}
-                        
-                        <!-- Ajout du formulaire de modification du statut et bouton de suppression -->
+
+                        <!-- Modification du statut et suppression -->
                         {% if role_utilisateur in ['Administrateur', 'Contributeur'] %}
                         <div class="mt-2 flex items-center gap-2">
-                            <form method="POST" action="{{ url_for('main.modifier_tache', id_projet=projet.id, id_tache=tache.id) }}" class="flex-grow">
-                                <select name="statut" onchange="this.form.submit()" class="text-sm border rounded px-2 py-1 w-full">
-                                    <option value="A faire" {% if tache.statut == 'A faire' %}selected{% endif %}>À faire</option>
-                                    <option value="En cours" {% if tache.statut == 'En cours' %}selected{% endif %}>En cours</option>
-                                    <option value="Terminé" {% if tache.statut == 'Terminé' %}selected{% endif %}>Terminé</option>
+                            <form method="POST"
+                                action="{{ url_for('main.modifier_tache', id_projet=projet.id, id_tache=tache.id) }}"
+                                class="flex-grow">
+                                <select name="statut" onchange="this.form.submit()"
+                                    class="text-sm border rounded px-2 py-1 w-full">
+                                    <option value="A faire" {% if tache.statut=='A faire' %}selected{% endif %}>À faire
+                                    </option>
+                                    <option value="En cours" {% if tache.statut=='En cours' %}selected{% endif %}>En
+                                        cours</option>
+                                    <option value="Terminé" {% if tache.statut=='Terminé' %}selected{% endif %}>Terminé
+                                    </option>
                                 </select>
                             </form>
                         </div>
                         {% endif %}
                         {% if role_utilisateur == 'Administrateur' %}
                         <div class="mt-2 flex items-center gap-2">
-                            <form method="POST" 
-                                  action="{{ url_for('main.supprimer_tache', id_projet=projet.id, id_tache=tache.id) }}"
-                                  onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette tâche ?');"
-                                  class="inline">
+                            <form method="POST"
+                                action="{{ url_for('main.supprimer_tache', id_projet=projet.id, id_tache=tache.id) }}"
+                                onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette tâche ?');"
+                                class="inline">
                                 <button type="submit" class="text-red-600 hover:text-red-800 p-1">
                                     Supprimer<i class="fas fa-trash"></i>
                                 </button>
@@ -274,6 +295,7 @@
                         <td class="px-6 py-4">{{ membre.role }}</td>
                         <td class="px-6 py-4">{{ membre.date_ajout.strftime('%d/%m/%Y') }}</td>
                         {% if role_utilisateur == 'Administrateur' %}
+                        {% if current_user.id != membre.createur_id %}
                         <td class="px-6 py-4">
                             <form method="POST"
                                 action="{{ url_for('main.supprimer_membre', id_projet=projet.id, id_membre=membre.id_projet_membre) }}"
@@ -284,6 +306,7 @@
                             </form>
                         </td>
                         {% endif %}
+                        {% endif %}
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -293,3 +316,10 @@
     {% endif %}
 </div>
 {% endblock %}
+
+
+
+
+
+
+

@@ -14,14 +14,14 @@
                 <input type="email" value="{{ current_user.email }}" class="mt-1 bg-gray-100 w-full rounded-md" disabled>
             </div>
 
-            <!-- Nom -->
+            <!-- Nom (non modifiable) -->
             <div class="mb-4">
                 <label for="nom" class="block text-sm font-medium text-gray-700">Nom</label>
                 <input type="text" id="nom" name="nom" value="{{ current_user.nom }}" 
                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" disabled>
             </div>
 
-            <!-- Prénom -->
+            <!-- Prénom (non modifiable) -->
             <div class="mb-4">
                 <label for="prenom" class="block text-sm font-medium text-gray-700">Prénom</label>
                 <input type="text" id="prenom" name="prenom" value="{{ current_user.prenom }}"
@@ -36,7 +36,7 @@
             </div>
         </div>
 
-        <!-- Préférences de notification -->
+        <!-- Préférences de notification (l'un ou l'autre) -->
         <div class="bg-white p-6 rounded-lg shadow">
             <h2 class="text-lg font-semibold mb-4">Préférences de notification</h2>
             

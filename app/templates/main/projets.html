@@ -18,6 +18,7 @@
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-200">
+                    <!-- Liste des projets de l'app -->
                     {% for projet in projets %}
                     <tr class="hover:bg-gray-100"
                         onclick="window.location.href='{{ url_for('main.projet_detaille', id_projet=projet.id) }}';">
