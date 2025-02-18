@@ -1,3 +1,11 @@
+# Adoo - Gestionnaire de Projets
+
+### Quelques fonctionnalités ne sont pas présentes tel que les notifications, les commentaires, modifier le role d'un membre, modifier l'attribution d'une tache, modifier les attributs d'un projet.
+## Technologies utilisées
+- **Backend**: Flask (Python)
+- **Base de données**: SQLite
+- **Frontend**: HTML + Tailwind CSS
+
 
 # Installation du projet
 
